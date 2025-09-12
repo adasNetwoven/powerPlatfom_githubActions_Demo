@@ -13,6 +13,7 @@ jobs:
         environment-url: 'https://orgeacfefe8.crm.dynamics.com/'
         app-id: 'be16e478-4f72-4c79-a086-0a400d3e4215'
         client-secret: ${{secrets.PowerPlatformSPN}}
+        tenant-id: '9e6723d3-eca3-4f1c-9e51-4022bcab3bd2'
         solution-name: PP-first-soultion
         solution-output-file: 'PP-first-soultion.zip'
         working-directory: 'out'
@@ -28,9 +29,10 @@ jobs:
     - name: Publish Solution
       uses: microsoft/powerplatform-actions/publish-solution@v1
       with:
-        environment-url: 'https://myenv.crm.dynamics.com'
-        user-name: 'me@myenv.onmicrosoft.com'
-        password-secret: ${{ secrets.MYPASSWORD }}
+        environment-url: 'https://orgeacfefe8.crm.dynamics.com/'
+        app-id: 'be16e478-4f72-4c79-a086-0a400d3e4215'
+        client-secret: ${{secrets.PowerPlatformSPN}}
+        tenant-id: '9e6723d3-eca3-4f1c-9e51-4022bcab3bd2'
 
     - name: Prepare solution changes for check-in into source control
       uses: microsoft/powerplatform-actions/branch-solution@v1
