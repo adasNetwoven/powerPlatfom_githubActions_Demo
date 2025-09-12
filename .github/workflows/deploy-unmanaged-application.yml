@@ -15,10 +15,10 @@ on:
         description: "http endpoint of your Dataverse environment"
         required: true
         default: "https://orgeacfefe8.crm.dynamics.com"
-      #solution_source_folder:
-       # description: "Location of the solution files"
-        #requried: true
-        #default: .
+      solution_source_folder:
+        description: "Location of the solution files"
+        required: true
+        default: out/exported/
       #solution_outbound_folder:
        # description: "solution outbound folder"
         #required: true
