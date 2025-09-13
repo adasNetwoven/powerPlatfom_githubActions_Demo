@@ -32,6 +32,9 @@ jobs:
           lfs: true
         env:
           RUNNER_DEBUG: 1
+           
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
       - name: Import solution as unmanaged to build env
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
