@@ -18,7 +18,7 @@ on:
       solution_source_folder:
         description: "Location of the solution files"
         required: true
-        default: solutions/
+        default: workflows/solutions/
       #solution_outbound_folder:
        # description: "solution outbound folder"
         #required: true
