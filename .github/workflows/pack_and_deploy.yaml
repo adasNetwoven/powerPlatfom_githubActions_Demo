@@ -14,7 +14,7 @@ on:
       environment_url:
         description: "http endpoint of your Dataverse environment"
         required: true
-        default: "https://[your-env].crm.dynamics.com"
+        default: "https://org1a80c458.crm8.dynamics.com/"
       solution_source_folder:
         description: "Location of the solution files"
         required: true
