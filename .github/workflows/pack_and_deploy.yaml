@@ -1,4 +1,4 @@
-name: Pack and Deploy
+name: Pack and Deploy 2
 run-name: Packing ${{ github.event.inputs.solution_name }} for ${{ github.event.inputs.environment_url }} environment
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       solution_name:
         description: "name of the Solution"
         required: true
-        default: yoursolutionname
+        default: PPfirstsoultion
       # environment_id:
       #   description: "GUID of your Dataverse environment"
       #   required: true
