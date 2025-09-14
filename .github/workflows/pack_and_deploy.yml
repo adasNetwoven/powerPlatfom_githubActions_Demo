@@ -42,7 +42,7 @@ jobs:
           solution-type: Unmanaged
     
       - name: Import solution as unmanaged to build env
-        uses: microsoft/powerplatform-actions/import-solution@v0
+        uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{github.event.inputs.environment_url}}
           app-id: ${{secrets.CLIENT_ID}}
