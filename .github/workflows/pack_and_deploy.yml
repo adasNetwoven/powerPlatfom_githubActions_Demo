@@ -33,7 +33,8 @@ jobs:
         env:
           RUNNER_DEBUG: 1
       
-       
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
       - name: Pack the solution
         uses: microsoft/powerplatform-actions/pack-solution@v1
         with:
