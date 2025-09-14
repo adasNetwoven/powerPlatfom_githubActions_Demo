@@ -1,4 +1,4 @@
-name: Pack and Deploy
+name: Pack and Deploy 2
 run-name: Packing ${{ github.event.inputs.solution_name }} for ${{ github.event.inputs.environment_url }} environment
 on:
   workflow_dispatch:
