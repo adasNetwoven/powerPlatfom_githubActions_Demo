@@ -15,10 +15,10 @@ on:
         description: "http endpoint of your Dataverse environment"
         required: true
         default: "https://[your-env].crm.dynamics.com"
-      #solution_source_folder:
-       # description: "Location of the solution files"
-        #requried: true
-        #default: .
+      solution_source_folder:
+        description: "Location of the solution files"
+        required: true
+        default: solutions
       #solution_outbound_folder:
        # description: "solution outbound folder"
         #required: true
@@ -37,7 +37,7 @@ jobs:
       - name: Pack the solution
         uses: microsoft/powerplatform-actions/pack-solution@v0
         with:
-          solution-folder: ${{ github.event.repository.name}}/${{ github.event.inputs.solution_name }}
+          solution-folder: ${{ github.event.repository.name}}/${{ github.event.inputs.solution_source_folder }}/${{ github.event.inputs.solution_name }}
           solution-file: ${{ github.event.repository.name}}/${{ github.event.inputs.solution_name }}.zip
           solution-type: Unmanaged
     
