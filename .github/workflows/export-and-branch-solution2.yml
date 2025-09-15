@@ -1,5 +1,4 @@
 name: export-and-branch-solution2
-
 on:
   workflow_dispatch:
     inputs:
@@ -71,27 +70,25 @@ jobs:
     - name: Get solution version
       id: get_version
       run: |
-        & "$env:POWERPLATFORMTOOLS_PACPATH" solution list --environment ${{env.ENVIRONMENT_URL}} --json > solutions.json
-        $version = (Get-Content solutions.json | ConvertFrom-Json).value |
-          Where-Object { $_.friendlyName -eq "${{ github.event.inputs.solution_name }}" } |
-          Select-Object -ExpandProperty version
+        & "$env:POWERPLATFORMTOOLS_PACPATH" auth create `
+          --url ${{env.ENVIRONMENT_URL}} `
+          --tenant ${{env.TENANT_ID}} `
+          --applicationId ${{env.CLIENT_ID}} `
+          --clientSecret ${{secrets.PowerPlatformSPN}}
+
+        & "$env:POWERPLATFORMTOOLS_PACPATH" solution list `
+          --environment ${{env.ENVIRONMENT_URL}} --json > solutions.json
+
+        $json = Get-Content solutions.json -Raw | ConvertFrom-Json
+        $version = ($json.value | Where-Object { $_.friendlyName -eq "${{ github.event.inputs.solution_name }}" }).version
         echo "version=$version" >> $env:GITHUB_OUTPUT
       shell: pwsh
 
-    - name: Create branch with solution name and version
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        BRANCH="${{ github.event.inputs.solution_name }}-${{ steps.get_version.outputs.version }}"
-        git checkout -b "$BRANCH"
-        git add .
-        git commit -m "Add solution ${{ github.event.inputs.solution_name }} v${{ steps.get_version.outputs.version }}"
-        git push origin "$BRANCH"
-
-    - name: branch-solution, prepare it for a PullRequest
+    - name: Create and push branch with solution changes
       uses: microsoft/powerplatform-actions/branch-solution@v1
       with:
         solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
         solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
+        branch-name: ${{ github.event.inputs.solution_name }}-${{ steps.get_version.outputs.version }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         allow-empty-commit: true
