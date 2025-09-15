@@ -1,0 +1,94 @@
+name: export-and-branch-solution2
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: 'name of the solution to work on from Power Platform'
+        required: true
+        default: PPfirstsoultion
+      solution_exported_folder:
+        description: 'folder name for staging the exported solution *do not change*'
+        required: true
+        default: out/exported/
+      solution_folder:
+        description: 'staging the unpacked solution folder before check-in *do not change*'
+        required: true
+        default: out/solutions/
+      solution_target_folder: 
+        description: 'folder name to be created and checked in *do not change*'
+        required: true
+        default: solutions/
+
+env:
+  ENVIRONMENT_URL: 'https://orgeacfefe8.crm.dynamics.com/'
+  CLIENT_ID: 'be16e478-4f72-4c79-a086-0a400d3e4215'
+  TENANT_ID: '9e6723d3-eca3-4f1c-9e51-4022bcab3bd2'
+
+permissions:
+  contents: write
+
+jobs:
+  export-from-dev:
+    runs-on: windows-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        lfs: true
+
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: who-am-i action
+      uses: microsoft/powerplatform-actions/who-am-i@v1
+      with:
+        environment-url: ${{env.ENVIRONMENT_URL}}
+        app-id: ${{env.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{env.TENANT_ID}}
+
+    - name: export-solution action
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: ${{env.ENVIRONMENT_URL}}
+        app-id: ${{env.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{env.TENANT_ID}}
+        solution-name: ${{ github.event.inputs.solution_name }}
+        solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+
+    - name: unpack-solution action
+      uses: microsoft/powerplatform-actions/unpack-solution@v1
+      with:
+        solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
+        solution-type: 'Unmanaged'
+        overwrite-files: true
+
+    - name: Get solution version
+      id: get_version
+      run: |
+        & "$env:POWERPLATFORMTOOLS_PACPATH" auth create `
+          --url ${{env.ENVIRONMENT_URL}} `
+          --tenant ${{env.TENANT_ID}} `
+          --applicationId ${{env.CLIENT_ID}} `
+          --clientSecret ${{secrets.PowerPlatformSPN}}
+
+        & "$env:POWERPLATFORMTOOLS_PACPATH" solution list `
+          --environment ${{env.ENVIRONMENT_URL}} --json > solutions.json
+
+        $json = Get-Content solutions.json -Raw | ConvertFrom-Json
+        $version = ($json.value | Where-Object { $_.friendlyName -eq "${{ github.event.inputs.solution_name }}" }).version
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    - name: Create and push branch with solution changes
+      uses: microsoft/powerplatform-actions/branch-solution@v1
+      with:
+        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
+        solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
+        branch-name: ${{ github.event.inputs.solution_name }}-${{ steps.get_version.outputs.version }}
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        allow-empty-commit: true
