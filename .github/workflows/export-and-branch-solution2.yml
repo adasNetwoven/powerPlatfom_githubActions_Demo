@@ -1,6 +1,4 @@
 name: export-and-branch-solution2
-# Export solution from DEV environment
-# Unpack it and prepare, commit and push a git branch with the changes
 
 on:
   workflow_dispatch:
@@ -44,6 +42,11 @@ jobs:
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
+    - name: Ensure pac is available
+      run: |
+        echo "$env:USERPROFILE\.pac\tools" >> $env:GITHUB_PATH
+      shell: pwsh
+
     - name: who-am-i action
       uses: microsoft/powerplatform-actions/who-am-i@v1
       with:
@@ -62,38 +65,4 @@ jobs:
         solution-name: ${{ github.event.inputs.solution_name }}
         solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
 
-    - name: unpack-solution action
-      uses: microsoft/powerplatform-actions/unpack-solution@v1
-      with:
-        solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
-        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
-        solution-type: 'Unmanaged'
-        overwrite-files: true
-
-    - name: Get solution version
-      id: get_version
-      run: |
-        pac solution list --environment ${{env.ENVIRONMENT_URL}} --json > solutions.json
-        $version = (Get-Content solutions.json | ConvertFrom-Json).value |
-          Where-Object { $_.friendlyName -eq "${{ github.event.inputs.solution_name }}" } |
-          Select-Object -ExpandProperty version
-        echo "version=$version" >> $env:GITHUB_OUTPUT
-      shell: pwsh
-
-    - name: Create branch with solution name and version
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        BRANCH="${{ github.event.inputs.solution_name }}-${{ steps.get_version.outputs.version }}"
-        git checkout -b "$BRANCH"
-        git add .
-        git commit -m "Add solution ${{ github.event.inputs.solution_name }} v${{ steps.get_version.outputs.version }}"
-        git push origin "$BRANCH"
-
-    - name: branch-solution, prepare it for a PullRequest
-      uses: microsoft/powerplatform-actions/branch-solution@v1
-      with:
-        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
-        solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        allow-empty-commit: true
+    - name: unpack-solution a
