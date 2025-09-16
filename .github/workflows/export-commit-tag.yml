@@ -46,7 +46,7 @@ jobs:
           client-secret: ${{ secrets.PowerPlatformSPN }}
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ github.event.inputs.solution_name }}
-          solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+          solution-output-file: exported-solutions/${{ github.event.inputs.solution_name }}.zip
           managed: false
 
       # 4. Commit the exported file back to same branch
