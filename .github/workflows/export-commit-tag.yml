@@ -1,0 +1,65 @@
+name: Power Platform Export & Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: "Name of the solution"
+        required: true
+        default: PPfirstsoultion
+      tag_name:
+        description: "Tag version (e.g., v1.0.0)"
+        required: true
+        default: v1.0.0
+      branch_name:
+        description: "Branch to run on (dev/test/prod)"
+        required: true
+        default: Dev
+env:
+#edit your values here
+  ENVIRONMENT_URL: 'https://orgeacfefe8.crm.dynamics.com/'
+  CLIENT_ID: 'be16e478-4f72-4c79-a086-0a400d3e4215'
+  TENANT_ID: '9e6723d3-eca3-4f1c-9e51-4022bcab3bd2'
+jobs:
+  export-commit-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required for commit & tag
+
+    steps:
+      # 1. Checkout the branch chosen by user
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+
+      # 2. Install Power Platform CLI
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # 3. Export the solution from the correct environment
+      - name: Export solution
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{env.ENVIRONMENT_URL}}
+          app-id: ${{env.CLIENT_ID}}
+          client-secret: ${{ secrets.PowerPlatformSPN }}
+          tenant-id: ${{env.TENANT_ID}}
+          solution-name: ${{ github.event.inputs.solution_name }}
+          solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+          managed: false
+
+      # 4. Commit the exported file back to same branch
+      - name: Commit solution
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add solutions/${{ github.event.inputs.solution_name }}.zip
+          git commit -m "Exported ${{ github.event.inputs.solution_name }} from ${{ github.event.inputs.branch_name }} on $(date)" || echo "No changes to commit"
+          git push origin HEAD:${{ github.event.inputs.branch_name }}
+
+      # 5. Create and push a tag
+      - name: Create Git tag
+        run: |
+          git tag ${{ github.event.inputs.tag_name }}
+          git push origin ${{ github.event.inputs.tag_name }}
