@@ -1,0 +1,45 @@
+name: Power Platform Import from Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: "Name of the solution"
+        required: true
+        default: PPfirstsoultion
+      tag_name:
+        description: "Tag version to deploy (e.g., v1.0.0)"
+        required: true
+      target_env:
+        description: "Target environment (test/prod)"
+        required: true
+        default: "https://org1a80c458.crm8.dynamics.com/"
+
+jobs:
+  import-solution:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # 1. Checkout repo at the tagged version
+      - name: Checkout repo at tag
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.tag_name }}
+
+      # 2. Install Power Platform CLI
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # 3. Import solution into the target environment
+      - name: Import solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url:  ${{github.event.inputs.environment_url}}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.PowerPlatformSPN }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: exported-solutions/${{ github.event.inputs.solution_name }}.zip
+          force-overwrite: true
+          publish-changes: true
