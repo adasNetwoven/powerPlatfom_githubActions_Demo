@@ -36,7 +36,7 @@ jobs:
       - name: Import solution
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
-          environment-url:  ${{github.event.inputs.environment_url}}
+          environment-url:  ${{github.event.inputs.target_env}}
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.PowerPlatformSPN }}
           tenant-id: ${{ secrets.TENANT_ID }}
