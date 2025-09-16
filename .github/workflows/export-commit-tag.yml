@@ -54,7 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add solutions/${{ github.event.inputs.solution_name }}.zip
+          git add exported-solutions/${{ github.event.inputs.solution_name }}.zip
           git commit -m "Exported ${{ github.event.inputs.solution_name }} from ${{ github.event.inputs.branch_name }} on $(date)" || echo "No changes to commit"
           git push origin HEAD:${{ github.event.inputs.branch_name }}
 
