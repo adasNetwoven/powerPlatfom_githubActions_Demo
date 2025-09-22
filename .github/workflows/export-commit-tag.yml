@@ -72,4 +72,4 @@ jobs:
       # 6. Show output message
       - name: Show notice
         run: |
-          echo "Your solution has been exported. Please check the exported solution folder ${{ github.event.inputs.exported_solution_folder }}. Tag number: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
+          echo "::notice::Your solution has been exported. Please check the exported solution folder ${{ github.event.inputs.exported_solution_folder }}. Tag number: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
