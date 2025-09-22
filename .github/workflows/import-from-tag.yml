@@ -7,6 +7,10 @@ on:
         description: "Name of the solution"
         required: true
         default: PPfirstsoultion
+      exported_solution_folder:
+        description: "Name of the folder where the solution needs to be exported"
+        required: true
+        default: "exported solutions"
       tag_name:
         description: "Tag version to deploy (e.g., v1.0.0)"
         required: true
@@ -14,6 +18,11 @@ on:
         description: "Target environment (test/prod)"
         required: true
         default: "https://org1a80c458.crm8.dynamics.com/"
+      managed:
+        description: "Export as Managed?"
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   import-solution:
@@ -31,8 +40,16 @@ jobs:
       # 2. Install Power Platform CLI
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
+        
+      # 3. Pack the solution
+      - name: Pack the solution
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
+          solution-file: ${{ github.event.inputs.exported_solution_folder }}/tempPack/${{ github.event.inputs.solution_name }}.zip
+          solution-type: ${{ github.event.inputs.managed }} && 'Managed || 'Unmanaged'
 
-      # 3. Import solution into the target environment
+      # 4. Import solution into the target environment
       - name: Import solution
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
@@ -40,6 +57,14 @@ jobs:
           app-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.PowerPlatformSPN }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          solution-file: exported-solutions/${{ github.event.inputs.solution_name }}.zip
+          solution-file: ${{ github.event.inputs.exported_solution_folder }}/tempPack/${{ github.event.inputs.solution_name }}.zip
           force-overwrite: true
           publish-changes: true
+
+      # 5. Remove tempPack folder
+      - name: Clean up tempPack folder
+        run: |
+          if [ -d ${{ github.event.inputs.exported_solution_folder }}/tempPack ]; then
+            rm -rf ${{ github.event.inputs.exported_solution_folder }}/tempPack
+          fi
+      
