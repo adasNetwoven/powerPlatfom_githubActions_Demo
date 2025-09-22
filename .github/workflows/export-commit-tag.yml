@@ -52,50 +52,5 @@ jobs:
           if [ -d ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }} ]; then
             rm -rf ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
           fi
-      # 3. Export the solution from the correct environment
-      - name: Export solution
-        uses: microsoft/powerplatform-actions/export-solution@v1
-        with:
-          environment-url: ${{env.ENVIRONMENT_URL}}
-          app-id: ${{env.CLIENT_ID}}
-          client-secret: ${{ secrets.PowerPlatformSPN }}
-          tenant-id: ${{env.TENANT_ID}}
-          solution-name: ${{ github.event.inputs.solution_name }}
-          solution-output-file: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
-          managed: ${{ github.event.inputs.managed }}
-
-      # 4. Unpack the solution
-      - name: unpack-solution action
-        uses: microsoft/powerplatform-actions/unpack-solution@v1
-        with:
-          solution-file: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}.zip
-          solution-folder: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}
-          solution-type: ${{ github.event.inputs.managed == 'true' && 'Managed' || 'Unmanaged' }}
-
-          overwrite-files: true
-        
-      # 5. Commit the exported file back to same branch
-      - name: Commit solution
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git add ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
-          git add ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
-          git commit -m "Exported ${{ github.event.inputs.solution_name }} on $(date)" || echo "No changes to commit"
-          git push origin HEAD:${{ github.event.inputs.branch_name }}
-
-      # 6. Create and push a tag
-      - name: Create Git tag
-        run: |
-          git tag ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER
-          git push origin ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER
-
-      # 7. Show output message
-      - name: Show notice
-        run: |
-            echo "::notice::Your solution has been exported."
-            echo "::notice::Exported solution folder: ${{ github.event.inputs.exported_solution_folder }}."
-            echo "::notice::Solution:${{ github.event.inputs.solution_name }}"
-            echo "::notice::Tag: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
-            
+     
             
