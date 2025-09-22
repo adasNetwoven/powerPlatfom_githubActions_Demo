@@ -6,8 +6,8 @@
       <LocalizedName description="PP-first-soultion" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.0.0.6</Version>
-    <Managed>0</Managed>
+    <Version>1.0.0.8</Version>
+    <Managed>1</Managed>
     <Publisher>
       <UniqueName>pp</UniqueName>
       <LocalizedNames>
