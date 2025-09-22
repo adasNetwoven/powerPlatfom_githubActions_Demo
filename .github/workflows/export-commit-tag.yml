@@ -70,7 +70,8 @@ jobs:
         with:
           solution-file: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}.zip
           solution-folder: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}
-          solution-type: ${{ github.event.inputs.managed }} && 'Managed || 'Unmanaged'
+          solution-type: ${{ github.event.inputs.managed == 'true' && 'Managed' || 'Unmanaged' }}
+
           overwrite-files: true
         
       # 5. Commit the exported file back to same branch
