@@ -15,6 +15,11 @@ on:
         description: "Branch to run on (dev/test/prod)"
         required: true
         default: Dev
+      managed:
+        description: "Export as Managed?"
+        required: true
+        type: boolean
+        default: false
 env:
 #edit your values here
   ENVIRONMENT_URL: 'https://orgeacfefe8.crm.dynamics.com/'
@@ -52,7 +57,7 @@ jobs:
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ github.event.inputs.solution_name }}
           solution-output-file: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
-          managed: false
+          managed: ${{ github.event.inputs.managed }}
 
       # 4. Commit the exported file back to same branch
       - name: Commit solution
