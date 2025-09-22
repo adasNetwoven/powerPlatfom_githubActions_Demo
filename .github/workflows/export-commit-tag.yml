@@ -10,7 +10,7 @@ on:
       exported_solution_folder:
         description: "Name of the folder where the solution needs to be exported"
         required: true
-        default: "exported solutions"
+        default: "exported-solutions"
       branch_name:
         description: "Branch to run on (dev/test/prod)"
         required: true
