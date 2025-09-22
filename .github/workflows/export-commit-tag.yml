@@ -44,6 +44,11 @@ jobs:
 
       - name: Clean up old solution zip
         run: |
+          if [ -f ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip ]; then
+            rm  ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
+          fi
+      - name: Clean up old solution folder
+        run: |
           if [ -d ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }} ]; then
             rm -rf ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
           fi
@@ -56,14 +61,14 @@ jobs:
           client-secret: ${{ secrets.PowerPlatformSPN }}
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ github.event.inputs.solution_name }}
-          solution-output-file: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_name }}.zip
+          solution-output-file: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
           managed: ${{ github.event.inputs.managed }}
 
       # 4. Unpack the solution
       - name: unpack-solution action
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_name }}.zip
+          solution-file: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}.zip
           solution-folder: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}
           solution-type: ${{ github.event.inputs.managed }} && 'Managed || 'Unmanaged'
           overwrite-files: true
@@ -73,6 +78,7 @@ jobs:
         run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
           git add ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
           git commit -m "Exported ${{ github.event.inputs.solution_name }} on $(date)" || echo "No changes to commit"
           git push origin HEAD:${{ github.event.inputs.branch_name }}
