@@ -7,10 +7,10 @@ on:
         description: "Name of the solution"
         required: true
         default: PPfirstsoultion
-      tag_name:
-        description: "Tag version (e.g., v1.0.0)"
+      exported_solution_folder:
+        description: "Name of the folder where the solution needs to be exported"
         required: true
-        default: v1.0.0
+        default: "exported solutions"
       branch_name:
         description: "Branch to run on (dev/test/prod)"
         required: true
@@ -39,8 +39,8 @@ jobs:
 
       - name: Clean up old solution zip
         run: |
-          if [ -f exported-solutions/${{ github.event.inputs.solution_name }}.zip ]; then
-            rm exported-solutions/${{ github.event.inputs.solution_name }}.zip
+          if [ -f ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip ]; then
+            rm ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
           fi
       # 3. Export the solution from the correct environment
       - name: Export solution
@@ -51,20 +51,25 @@ jobs:
           client-secret: ${{ secrets.PowerPlatformSPN }}
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ github.event.inputs.solution_name }}
-          solution-output-file: exported-solutions/${{ github.event.inputs.solution_name }}.zip
+          solution-output-file: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
           managed: false
 
       # 4. Commit the exported file back to same branch
       - name: Commit solution
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add exported-solutions/${{ github.event.inputs.solution_name }}.zip
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}.zip
           git commit -m "Exported ${{ github.event.inputs.solution_name }} from ${{ github.event.inputs.branch_name }} on $(date)" || echo "No changes to commit"
           git push origin HEAD:${{ github.event.inputs.branch_name }}
 
       # 5. Create and push a tag
       - name: Create Git tag
         run: |
-          git tag ${{ github.event.inputs.tag_name }}
-          git push origin ${{ github.event.inputs.tag_name }}
+          git tag ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER
+          git push origin ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER
+
+      # 6. Show output message
+      - name: Show notice
+        run: |
+          echo "Your solution has been exported. Please check the exported solution folder ${{ github.event.inputs.exported_solution_folder }}. Tag number: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
