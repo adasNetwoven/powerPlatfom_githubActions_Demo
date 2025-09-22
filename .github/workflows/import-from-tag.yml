@@ -47,7 +47,7 @@ jobs:
         with:
           solution-folder: ${{ github.event.inputs.exported_solution_folder }}/${{ github.event.inputs.solution_name }}
           solution-file: ${{ github.event.inputs.exported_solution_folder }}/tempPack/${{ github.event.inputs.solution_name }}.zip
-          solution-type: ${{ github.event.inputs.managed }} && 'Managed || 'Unmanaged'
+          solution-type: ${{ github.event.inputs.managed == 'true' && 'Managed' || 'Unmanaged' }}
 
       # 4. Import solution into the target environment
       - name: Import solution
