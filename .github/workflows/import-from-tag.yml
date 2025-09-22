@@ -10,7 +10,7 @@ on:
       exported_solution_folder:
         description: "Name of the folder where the solution needs to be exported"
         required: true
-        default: "exported solutions"
+        default: "exported-solutions"
       tag_name:
         description: "Tag version to deploy (e.g., v1.0.0)"
         required: true
