@@ -65,7 +65,7 @@ jobs:
         with:
           solution-file: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_name }}.zip
           solution-folder: ${{ github.event.inputs.exported_solution_folder}}/${{ github.event.inputs.solution_name }}
-          solution-type: 'Unmanaged'
+          solution-type: ${{ github.event.inputs.managed }} && 'Managed || 'Unmanaged'
           overwrite-files: true
         
       # 5. Commit the exported file back to same branch
@@ -86,4 +86,9 @@ jobs:
       # 7. Show output message
       - name: Show notice
         run: |
-            echo "::notice::Your solution has been exported.\n Exported solution folder: ${{ github.event.inputs.exported_solution_folder }}.\n Solution:${{ github.event.inputs.solution_name }} \n Tag: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
+            echo "::notice::Your solution has been exported."
+            echo "::notice::Exported solution folder: ${{ github.event.inputs.exported_solution_folder }}."
+            echo "::notice::Solution:${{ github.event.inputs.solution_name }}"
+            echo "::notice::Tag: ${{ github.event.inputs.solution_name }}-$GITHUB_RUN_NUMBER"
+            
+            
